@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Ferretería Wilmer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="min-h-screen">
+    <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-6 shadow-lg">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Dashboard - Ferretería Wilmer</h1>
+        <button id="logout-btn" class="bg-white text-amber-700 px-6 py-2 rounded-lg hover:bg-amber-50 transition-all font-semibold">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-gray-600 mb-2">Total Productos</h3>
+          <p class="text-4xl font-bold text-amber-600" id="total-productos">0</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-gray-600 mb-2">Total Categorías</h3>
+          <p class="text-4xl font-bold text-blue-600" id="total-categorias">0</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-gray-600 mb-2">Total Servicios</h3>
+          <p class="text-4xl font-bold text-green-600" id="total-servicios">0</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Productos Recientes</h2>
+        <div id="productos-recientes" class="overflow-x-auto">
+          <p class="text-gray-500">Cargando...</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-4">Acciones Rápidas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a href="/" class="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-6 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all text-center font-semibold shadow-md flex flex-col items-center justify-center">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+            </svg>
+            <span>Ver Sitio Web</span>
+          </a>
+          <a href="/productos-admin.html" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all text-center font-semibold shadow-md flex flex-col items-center justify-center">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <span>Gestionar Productos</span>
+          </a>
+          <a href="/categorias-admin.html" class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition-all text-center font-semibold shadow-md flex flex-col items-center justify-center">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <span>Gestionar Categorias</span>
+          </a>
+          <a href="/servicios-admin.html" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all text-center font-semibold shadow-md flex flex-col items-center justify-center">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <span>Gestionar Servicios</span>
+          </a>
+          <a href="/administradores.html" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all text-center font-semibold shadow-md flex flex-col items-center justify-center">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <span>Administradores</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const supabase = createClient(
+      'https://qiyfmtqxgjbycxepxdpi.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpeWZtdHF4Z2pieWN4ZXB4ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTE0MDksImV4cCI6MjA3Nzc4NzQwOX0.N3Vxcgp1ll2dau8YnDIBySo3TOhaeRUYIjivrhoPVUE'
+    )
+
+    // Verificar sesión
+    const session = sessionStorage.getItem('admin_session')
+    if (!session) {
+      window.location.href = '/login.html'
+    }
+
+    // Cargar estadísticas
+    async function loadStats() {
+      const [prodRes, catRes, servRes] = await Promise.all([
+        supabase.from('productos').select('*', { count: 'exact' }),
+        supabase.from('categorias').select('*', { count: 'exact' }).limit(8),
+        supabase.from('servicios').select('*', { count: 'exact' })
+      ])
+
+      document.getElementById('total-productos').textContent = prodRes.count || 0
+      document.getElementById('total-categorias').textContent = catRes.count || 0
+      document.getElementById('total-servicios').textContent = servRes.count || 0
+
+      // Productos recientes
+      if (prodRes.data && prodRes.data.length > 0) {
+        const table = `
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left">Nombre</th>
+                <th class="px-4 py-2 text-left">Precio</th>
+                <th class="px-4 py-2 text-left">Stock</th>
+                <th class="px-4 py-2 text-left">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${prodRes.data.slice(0, 5).map(p => `
+                <tr class="border-b">
+                  <td class="px-4 py-2">${p.nombre}</td>
+                  <td class="px-4 py-2">S/ ${p.precio.toFixed(2)}</td>
+                  <td class="px-4 py-2">${p.stock}</td>
+                  <td class="px-4 py-2">
+                    <span class="px-2 py-1 rounded text-sm ${p.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                      ${p.activo ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `
+        document.getElementById('productos-recientes').innerHTML = table
+      }
+    }
+
+    loadStats()
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('admin_session')
+      window.location.href = '/index.html'
+    })
+  </script>
+</body>
+</html>

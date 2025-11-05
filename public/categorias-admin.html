@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion de Categorias - Ferreteria Wilmer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Sistema de notificaciones toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 9999;
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
+    }
+    .toast.success { border-left: 4px solid #10b981; }
+    .toast.error { border-left: 4px solid #ef4444; }
+    .toast.warning { border-left: 4px solid #f59e0b; }
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+    .toast.removing {
+      animation: slideOut 0.3s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="min-h-screen">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 shadow-lg">
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+          </svg>
+          <h1 class="text-3xl font-bold">Gestion de Categorias</h1>
+        </div>
+        <div class="space-x-4">
+          <a href="/dashboard.html" class="bg-white text-blue-700 px-6 py-2 rounded-lg hover:bg-blue-50 transition-all font-semibold inline-flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            <span>Volver al Dashboard</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">Listado de Categorias</h2>
+            <p class="text-gray-500 text-sm">Administra las categorias de productos</p>
+          </div>
+          <button id="btn-nueva-categoria" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold shadow-lg flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Agregar Nueva Categoria</span>
+          </button>
+        </div>
+        <div id="categorias-lista" class="overflow-x-auto">
+          <p class="text-gray-500 text-center py-8">Cargando categorias...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Categoria -->
+  <div id="modal-categoria" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
+        <h2 id="modal-title" class="text-2xl font-bold">Nueva Categoria</h2>
+      </div>
+      <form id="form-categoria" class="p-6 space-y-4">
+        <input type="hidden" id="categoria-id">
+        
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Nombre de la Categoria *</label>
+          <input 
+            type="text" 
+            id="categoria-nombre" 
+            required 
+            maxlength="100"
+            placeholder="Ej: Herramientas Electricas"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+          <p class="text-sm text-gray-500 mt-1">El nombre debe ser unico</p>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Descripcion (Opcional)</label>
+          <textarea 
+            id="categoria-descripcion" 
+            rows="4" 
+            maxlength="500"
+            placeholder="Describe brevemente esta categoria de productos..."
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          ></textarea>
+          <p class="text-sm text-gray-500 mt-1">Maximo 500 caracteres</p>
+        </div>
+
+        <div>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" id="categoria-activa" checked class="w-5 h-5 text-blue-600">
+            <span class="text-gray-700 font-semibold">Categoria Activa</span>
+          </label>
+          <p class="text-sm text-gray-500 mt-1 ml-7">Solo las categorias activas apareceran en el sitio web</p>
+        </div>
+
+        <div class="flex gap-3 pt-4 border-t">
+          <button type="button" id="btn-cancelar" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-all font-semibold">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all font-semibold">
+            Guardar Categoria
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmacion para Eliminar -->
+  <div id="modal-confirmar-eliminar" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+      <div class="bg-red-600 text-white p-6 rounded-t-xl">
+        <h2 class="text-2xl font-bold flex items-center space-x-2">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <span>Confirmar Eliminacion</span>
+        </h2>
+      </div>
+      <div class="p-6">
+        <p class="text-gray-700 mb-4" id="mensaje-confirmacion">Estas seguro de que deseas eliminar esta categoria?</p>
+        <div id="advertencia-productos" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700 font-semibold">Esta categoria tiene <span id="cantidad-productos">0</span> producto(s) asociado(s)</p>
+              <p class="text-xs text-yellow-600 mt-1">No se puede eliminar una categoria con productos. Primero elimina o reasigna los productos.</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-cancelar-eliminar" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition-all font-semibold">
+            Cancelar
+          </button>
+          <button id="btn-confirmar-eliminar" class="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-all font-semibold">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const supabase = createClient(
+      'https://qiyfmtqxgjbycxepxdpi.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpeWZtdHF4Z2pieWN4ZXB4ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTE0MDksImV4cCI6MjA3Nzc4NzQwOX0.N3Vxcgp1ll2dau8YnDIBySo3TOhaeRUYIjivrhoPVUE'
+    )
+
+    // Verificar sesion
+    const session = sessionStorage.getItem('admin_session')
+    if (!session) {
+      window.location.href = '/login.html'
+    }
+
+    let categorias = []
+    let categoriaEditando = null
+    let categoriaEliminar = null
+
+    // Sistema de notificaciones toast
+    function mostrarToast(mensaje, tipo = 'success') {
+      const toast = document.createElement('div')
+      toast.className = `toast ${tipo}`
+      
+      const iconos = {
+        success: '<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+        error: '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>',
+        warning: '<svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
+      }
+      
+      toast.innerHTML = `${iconos[tipo]}<span class="font-medium">${mensaje}</span>`
+      document.body.appendChild(toast)
+      
+      setTimeout(() => {
+        toast.classList.add('removing')
+        setTimeout(() => toast.remove(), 300)
+      }, 3000)
+    }
+
+    // Cargar categorias
+    async function cargarCategorias() {
+      try {
+        const { data, error } = await supabase
+          .from('categorias')
+          .select('*')
+          .order('nombre')
+
+        if (error) throw error
+        
+        categorias = data || []
+        mostrarCategorias()
+      } catch (error) {
+        console.error('Error al cargar categorias:', error)
+        mostrarToast('Error al cargar categorias', 'error')
+        document.getElementById('categorias-lista').innerHTML = `
+          <div class="text-center py-12">
+            <p class="text-red-500">Error al cargar categorias. Por favor, intenta mas tarde.</p>
+          </div>
+        `
+      }
+    }
+
+    // Mostrar categorias en tabla
+    function mostrarCategorias() {
+      const lista = document.getElementById('categorias-lista')
+      
+      if (categorias.length === 0) {
+        lista.innerHTML = `
+          <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">No hay categorias registradas</p>
+            <button onclick="document.getElementById('btn-nueva-categoria').click()" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+              Crear Primera Categoria
+            </button>
+          </div>
+        `
+        return
+      }
+
+      lista.innerHTML = `
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripcion</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Creacion</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${categorias.map(cat => `
+              <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#${cat.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-semibold text-gray-900">${cat.nombre}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-600 max-w-md truncate">${cat.descripcion || '<span class="text-gray-400 italic">Sin descripcion</span>'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${cat.activa ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${cat.activa ? 'Activa' : 'Inactiva'}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${new Date(cat.fecha_creacion).toLocaleDateString('es-ES')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <button onclick="editarCategoria(${cat.id})" class="text-blue-600 hover:text-blue-900 font-semibold">
+                    Editar
+                  </button>
+                  <button onclick="confirmarEliminarCategoria(${cat.id})" class="text-red-600 hover:text-red-900 font-semibold">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `
+    }
+
+    // Abrir modal para nueva categoria
+    document.getElementById('btn-nueva-categoria').addEventListener('click', () => {
+      categoriaEditando = null
+      document.getElementById('modal-title').textContent = 'Nueva Categoria'
+      document.getElementById('form-categoria').reset()
+      document.getElementById('categoria-id').value = ''
+      document.getElementById('categoria-activa').checked = true
+      document.getElementById('modal-categoria').classList.remove('hidden')
+    })
+
+    // Editar categoria
+    window.editarCategoria = function(id) {
+      const categoria = categorias.find(c => c.id === id)
+      if (!categoria) return
+
+      categoriaEditando = categoria
+      document.getElementById('modal-title').textContent = 'Editar Categoria'
+      document.getElementById('categoria-id').value = categoria.id
+      document.getElementById('categoria-nombre').value = categoria.nombre
+      document.getElementById('categoria-descripcion').value = categoria.descripcion || ''
+      document.getElementById('categoria-activa').checked = categoria.activa
+      document.getElementById('modal-categoria').classList.remove('hidden')
+    }
+
+    // Guardar categoria (crear o editar)
+    document.getElementById('form-categoria').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      
+      const id = document.getElementById('categoria-id').value
+      const nombre = document.getElementById('categoria-nombre').value.trim()
+      const descripcion = document.getElementById('categoria-descripcion').value.trim()
+      const activa = document.getElementById('categoria-activa').checked
+
+      // Validar nombre unico
+      const nombreExiste = categorias.some(cat => 
+        cat.nombre.toLowerCase() === nombre.toLowerCase() && 
+        cat.id != id
+      )
+
+      if (nombreExiste) {
+        mostrarToast('Ya existe una categoria con ese nombre', 'warning')
+        return
+      }
+
+      const datosCategoria = {
+        nombre,
+        descripcion: descripcion || null,
+        activa
+      }
+
+      try {
+        if (id) {
+          // Actualizar categoria existente
+          const { error } = await supabase
+            .from('categorias')
+            .update(datosCategoria)
+            .eq('id', id)
+
+          if (error) throw error
+          mostrarToast('Categoria actualizada exitosamente', 'success')
+        } else {
+          // Crear nueva categoria
+          const { error } = await supabase
+            .from('categorias')
+            .insert([datosCategoria])
+
+          if (error) throw error
+          mostrarToast('Categoria creada exitosamente', 'success')
+        }
+
+        document.getElementById('modal-categoria').classList.add('hidden')
+        await cargarCategorias()
+      } catch (error) {
+        console.error('Error al guardar categoria:', error)
+        mostrarToast('Error al guardar categoria', 'error')
+      }
+    })
+
+    // Confirmar eliminacion de categoria
+    window.confirmarEliminarCategoria = async function(id) {
+      categoriaEliminar = categorias.find(c => c.id === id)
+      if (!categoriaEliminar) return
+
+      // Verificar si hay productos asociados
+      const { data: productos, error } = await supabase
+        .from('productos')
+        .select('id')
+        .eq('categoria_id', id)
+
+      if (error) {
+        mostrarToast('Error al verificar productos asociados', 'error')
+        return
+      }
+
+      const cantidadProductos = productos?.length || 0
+      
+      if (cantidadProductos > 0) {
+        document.getElementById('advertencia-productos').classList.remove('hidden')
+        document.getElementById('cantidad-productos').textContent = cantidadProductos
+        document.getElementById('btn-confirmar-eliminar').disabled = true
+        document.getElementById('btn-confirmar-eliminar').classList.add('opacity-50', 'cursor-not-allowed')
+        document.getElementById('mensaje-confirmacion').textContent = `No se puede eliminar la categoria "${categoriaEliminar.nombre}" porque tiene productos asociados.`
+      } else {
+        document.getElementById('advertencia-productos').classList.add('hidden')
+        document.getElementById('btn-confirmar-eliminar').disabled = false
+        document.getElementById('btn-confirmar-eliminar').classList.remove('opacity-50', 'cursor-not-allowed')
+        document.getElementById('mensaje-confirmacion').textContent = `Estas seguro de que deseas eliminar la categoria "${categoriaEliminar.nombre}"? Esta accion no se puede deshacer.`
+      }
+
+      document.getElementById('modal-confirmar-eliminar').classList.remove('hidden')
+    }
+
+    // Eliminar categoria
+    document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+      if (!categoriaEliminar) return
+
+      try {
+        const { error } = await supabase
+          .from('categorias')
+          .delete()
+          .eq('id', categoriaEliminar.id)
+
+        if (error) throw error
+
+        mostrarToast('Categoria eliminada exitosamente', 'success')
+        document.getElementById('modal-confirmar-eliminar').classList.add('hidden')
+        categoriaEliminar = null
+        await cargarCategorias()
+      } catch (error) {
+        console.error('Error al eliminar categoria:', error)
+        mostrarToast('Error al eliminar categoria', 'error')
+      }
+    })
+
+    // Cerrar modales
+    document.getElementById('btn-cancelar').addEventListener('click', () => {
+      document.getElementById('modal-categoria').classList.add('hidden')
+    })
+
+    document.getElementById('btn-cancelar-eliminar').addEventListener('click', () => {
+      document.getElementById('modal-confirmar-eliminar').classList.add('hidden')
+      categoriaEliminar = null
+    })
+
+    // Inicializar
+    cargarCategorias()
+  </script>
+</body>
+</html>
