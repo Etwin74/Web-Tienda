@@ -42,6 +42,36 @@
     .project-card:hover .project-overlay {
       opacity: 1;
     }
+
+    /* Sistema de notificaciones toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 9999;
+      animation: slideIn 0.3s ease-out;
+      max-width: 400px;
+    }
+    .toast.success { border-left: 4px solid #10b981; }
+    .toast.info { border-left: 4px solid #3b82f6; }
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+    .toast.removing {
+      animation: slideOut 0.3s ease-out;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -492,6 +522,25 @@
   </a>
 
   <script>
+    // Sistema de notificaciones toast
+    function mostrarToast(mensaje, tipo = 'success') {
+      const toast = document.createElement('div')
+      toast.className = `toast ${tipo}`
+      
+      const iconos = {
+        success: '<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+        info: '<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+      }
+      
+      toast.innerHTML = `${iconos[tipo]}<span class="font-medium">${mensaje}</span>`
+      document.body.appendChild(toast)
+      
+      setTimeout(() => {
+        toast.classList.add('removing')
+        setTimeout(() => toast.remove(), 300)
+      }, 3000)
+    }
+
     // Formulario de contacto - Envio por WhatsApp
     document.getElementById('form-contacto').addEventListener('submit', function(e) {
       e.preventDefault()
@@ -502,18 +551,27 @@
       const asunto = document.getElementById('contacto-asunto').value
       const mensaje = document.getElementById('contacto-mensaje').value
       
-      let textoWhatsApp = `*NUEVO MENSAJE DE CONTACTO*\n\n`
-      textoWhatsApp += `*Nombre:* ${nombre}\n`
-      textoWhatsApp += `*Email:* ${email}\n`
-      textoWhatsApp += `*Telefono:* ${telefono}\n`
-      if (asunto) textoWhatsApp += `*Asunto:* ${asunto}\n`
-      textoWhatsApp += `\n*Mensaje:*\n${mensaje}`
+      // Mostrar toast de confirmación
+      mostrarToast('Preparando mensaje para WhatsApp...', 'info')
       
-      const url = `https://wa.me/51992763063?text=${encodeURIComponent(textoWhatsApp)}`
-      window.open(url, '_blank')
-      
-      // Limpiar formulario
-      this.reset()
+      // Esperar un momento antes de abrir WhatsApp para que el usuario vea el toast
+      setTimeout(() => {
+        let textoWhatsApp = `*NUEVO MENSAJE DE CONTACTO*\n\n`
+        textoWhatsApp += `*Nombre:* ${nombre}\n`
+        textoWhatsApp += `*Email:* ${email}\n`
+        textoWhatsApp += `*Telefono:* ${telefono}\n`
+        if (asunto) textoWhatsApp += `*Asunto:* ${asunto}\n`
+        textoWhatsApp += `\n*Mensaje:*\n${mensaje}`
+        
+        const url = `https://wa.me/51992763063?text=${encodeURIComponent(textoWhatsApp)}`
+        window.open(url, '_blank')
+        
+        // Mostrar toast de éxito
+        mostrarToast('Mensaje enviado a WhatsApp exitosamente', 'success')
+        
+        // Limpiar formulario
+        this.reset()
+      }, 500)
     })
 
     // Smooth scroll para enlaces internos
