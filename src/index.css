@@ -36,3 +36,46 @@ img {
 .fixed {
   position: fixed;
 }
+
+/* ✅ CSS MEJORADO PARA CARRUSELES */
+
+/* Asegurar que todas las cards tengan la misma altura en el carrusel */
+.swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+.swiper-slide > * {
+  width: 100%;
+}
+
+/* Transición suave para hover de botones */
+.group:hover .opacity-0 {
+  opacity: 1;
+}
+
+/* Asegurar que el carrusel no cause scroll horizontal */
+.swiper {
+  overflow: visible !important;
+}
+
+.swiper-wrapper {
+  align-items: stretch;
+}
+
+/* Asegurar que el contenedor principal no tenga overflow */
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+/* Removido: Efecto de pausa al hover - ahora controlado por pauseOnMouseEnter: false */
+
+/* Ajustar slides para evitar desbordamiento */
+.swiper-wrapper {
+  width: 100% !important;
+}
+
+.swiper-slide {
+  width: auto !important;
+  flex-shrink: 0;
+}
