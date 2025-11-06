@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ShoppingCart, Phone, Mail, MapPin, Clock, Menu, X } from 'lucide-react'
 import { supabase, Producto, Categoria, Servicio, Configuracion } from './lib/supabase'
+import { ProductDetailModal } from './components/productos/ProductDetailModal'
 
 interface CartItem {
   producto: Producto
@@ -17,6 +18,10 @@ function App() {
   const [selectedCategoria, setSelectedCategoria] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  
+  // Estados para el modal de detalles
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null)
+  const [showProductModal, setShowProductModal] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -105,6 +110,22 @@ function App() {
     
     const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`
     window.open(url, '_blank')
+  }
+
+  // Funciones para manejar el modal de detalles
+  const handleViewDetails = (producto: Producto) => {
+    setSelectedProduct(producto)
+    setShowProductModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null)
+    setShowProductModal(false)
+  }
+
+  const handleConsultar = (producto: Producto) => {
+    addToCart(producto)
+    setShowProductModal(false)
   }
 
   const filteredProducts = productos.filter(p => {
@@ -233,15 +254,23 @@ function App() {
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">{producto.descripcion}</p>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-2xl font-bold text-amber-600">S/ {producto.precio.toFixed(2)}</span>
-                    <span className="text-sm text-gray-500">Stock: {producto.stock}</span>
+                    {/* Stock removido - solo para uso interno */}
                   </div>
-                  <button
-                    onClick={() => addToCart(producto)}
-                    disabled={producto.stock <= 0}
-                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md hover:shadow-lg"
-                  >
-                    {producto.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => addToCart(producto)}
+                      disabled={producto.stock <= 0}
+                      className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md hover:shadow-lg"
+                    >
+                      {producto.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
+                    </button>
+                    <button
+                      onClick={() => handleViewDetails(producto)}
+                      className="px-3 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-all font-semibold"
+                    >
+                      Ver
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -392,6 +421,14 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Modal de detalles del producto */}
+      <ProductDetailModal
+        producto={selectedProduct}
+        isOpen={showProductModal}
+        onClose={handleCloseModal}
+        onConsultar={handleConsultar}
+      />
     </div>
   )
 }
