@@ -254,7 +254,7 @@ function App() {
                   <p className="text-sm text-gray-600 mb-3 line-clamp-2">{producto.descripcion}</p>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-2xl font-bold text-amber-600">S/ {producto.precio.toFixed(2)}</span>
-                    {/* Stock removido - solo para uso interno */}
+                    {/* ✅ MODIFICACIÓN: Stock removido - solo para uso interno */}
                   </div>
                   <div className="flex gap-2">
                     <button
